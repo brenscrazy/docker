@@ -2,9 +2,6 @@ package server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.rx.client.MongoClient;
-import com.mongodb.rx.client.MongoClients;
-import com.mongodb.rx.client.MongoDatabase;
 import dto.Company;
 import dao.InMemoryStockDao;
 import dao.StockDao;
@@ -59,7 +56,7 @@ public class NettyServer {
                     validateMapContainsFields(List.of("id", "amount", "moneyAvailable"), queries);
                     id = validateInt(queries.get("id"));
                     amount = validateInt(queries.get("amount"));
-                    double moneyAvailable = validateCost(queries.get("moneyAvailable"));
+                    double moneyAvailable = validateDouble(queries.get("moneyAvailable"));
                     return dao.buyStocks(id, amount, moneyAvailable)
                             .flatMap(company -> {
                                 try {
@@ -71,7 +68,7 @@ public class NettyServer {
                 case "setStockPrice":
                     validateMapContainsFields(List.of("id", "stockPrice"), queries);
                     id = validateInt(queries.get("id"));
-                    double stockPrice = validateCost(queries.get("stockPrice"));
+                    double stockPrice = validateDouble(queries.get("stockPrice"));
                     return dao.setStockPrice(id, stockPrice);
                 case "sellStocks":
                     validateMapContainsFields(List.of("id", "amount"), queries);

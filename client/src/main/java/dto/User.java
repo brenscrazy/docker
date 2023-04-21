@@ -1,7 +1,6 @@
 package dto;
 
 import org.bson.Document;
-import utils.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class User {
     public static User validateQueriesAndGet(Map<String, String> queries) {
         validateMapContainsFields(fields, queries);
         int id = validateInt(queries.get("id"));
-        double money = validateCost(queries.get("money"));
+        double money = validateDouble(queries.get("money"));
         return new User(id, money);
     }
 

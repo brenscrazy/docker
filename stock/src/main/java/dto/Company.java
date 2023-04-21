@@ -35,7 +35,7 @@ public class Company {
         validateMapContainsFields(fields, queries);
         int id = validateInt(queries.get("id"));
         String name = queries.get("name");
-        double stockPrice = validateCost(queries.get("stockPrice"));
+        double stockPrice = validateDouble(queries.get("stockPrice"));
         int amount = validateInt(queries.get("amount"));
         return new Company(id, name, stockPrice, amount);
     }

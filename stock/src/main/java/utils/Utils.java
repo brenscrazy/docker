@@ -17,15 +17,15 @@ public class Utils {
         try {
             return Integer.parseInt(id);
         } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Illegal id format. Please enter integer number.");
+            throw new IllegalArgumentException("Illegal int format. Please enter integer number.");
         }
     }
 
-    public static double validateCost(String cost) {
+    public static double validateDouble(String cost) {
         try {
             return Double.parseDouble(cost);
         } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Illegal cost format. Please enter double number.");
+            throw new IllegalArgumentException("Illegal double format. Please enter double number.");
         }
     }
 
