@@ -54,26 +54,13 @@ public class NettyServer {
                     validateMapContainsFields(List.of("userId"), queries);
                     return dao.getStocks(validateInt(queries.get("userId")))
                             .toList()
-                            .flatMap(list -> {
-                                try {
-                                    return Observable.just(objectMapper.writeValueAsString(list));
-                                } catch (JsonProcessingException e) {
-                                    return Observable.error(e);
-                                }
-                            });
+                            .flatMap(this::toJson);
                 case "buyStocks":
                     validateMapContainsFields(List.of("userId", "companyId", "amount"), queries);
                     int userId = validateInt(queries.get("userId"));
                     int companyId = validateInt(queries.get("companyId"));
                     int amount = validateInt(queries.get("amount"));
-                    return dao.buyStocks(userId, companyId, amount).flatMap(purchaseResult ->
-                    {
-                        try {
-                            return Observable.just(objectMapper.writeValueAsString(purchaseResult));
-                        } catch (JsonProcessingException e) {
-                            return Observable.error(e);
-                        }
-                    });
+                    return dao.buyStocks(userId, companyId, amount).flatMap(this::toJson);
                 case "getWholeMoney":
                     validateMapContainsFields(List.of("userId"), queries);
                     userId = validateInt(queries.get("userId"));
@@ -83,18 +70,19 @@ public class NettyServer {
                     userId = validateInt(queries.get("userId"));
                     companyId = validateInt(queries.get("companyId"));
                     amount = validateInt(queries.get("amount"));
-                    return dao.sellStocks(userId, companyId, amount).flatMap(purchaseResult ->
-                    {
-                        try {
-                            return Observable.just(objectMapper.writeValueAsString(purchaseResult));
-                        } catch (JsonProcessingException e) {
-                            return Observable.error(e);
-                        }
-                    });
+                    return dao.sellStocks(userId, companyId, amount).flatMap(this::toJson);
                 default:
                     return Observable.error(new IllegalArgumentException("Unknown command: " + requestName));
             }
         } catch (IllegalArgumentException e) {
+            return Observable.error(e);
+        }
+    }
+
+    private <T> Observable<String> toJson(T object) {
+        try {
+            return Observable.just(objectMapper.writeValueAsString(object));
+        } catch (JsonProcessingException e) {
             return Observable.error(e);
         }
     }
