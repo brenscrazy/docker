@@ -2,6 +2,8 @@ package dao;
 
 import com.mongodb.rx.client.MongoCollection;
 import com.mongodb.rx.client.Success;
+import dto.PurchaseResult;
+import dto.SellResult;
 import dto.User;
 import dto.UserStocks;
 import org.bson.Document;
@@ -40,6 +42,12 @@ public class MongoClientDao implements ClientDao {
     }
 
     @Override
+    public Observable<String> removeUser(int userId) {
+        return users.deleteOne(eq("id", userId))
+                .map(res -> "Removed");
+    }
+
+    @Override
     public Observable<String> addMoney(int userId, int money) {
         return users.updateOne(eq("id", userId), inc("money", money))
                 .map(res -> {
@@ -71,7 +79,7 @@ public class MongoClientDao implements ClientDao {
     }
 
     @Override
-    public Observable<String> buyStocks(int userId, int companyId, int amount) {
+    public Observable<PurchaseResult> buyStocks(int userId, int companyId, int amount) {
         return users.find(eq("id", userId))
                 .toObservable()
                 .flatMap(document -> stockServer.buyStocks(companyId, amount, document.getDouble("money")))
@@ -90,21 +98,27 @@ public class MongoClientDao implements ClientDao {
                                 })
                                 .flatMap(success -> users.findOneAndUpdate(eq("id", userId),
                                         inc("money", -purchaseResult.getSpent())))
-                                .map(document -> "Successfully bought");
+                                .map(doc -> purchaseResult);
                     } else {
-                        return Observable.just("Were not able to buy. Check if you gave correct parameters");
+                        return Observable.just(purchaseResult);
                     }
                 });
     }
 
     @Override
-    public Observable<String> sellStocks(int userId, int companyId, int amount) {
+    public Observable<SellResult> sellStocks(int userId, int companyId, int amount) {
         return usersStocks.findOneAndUpdate(and(eq("userId", userId), eq("companyId", companyId),
                         gte("amount", amount)), inc("amount", -amount))
                 .flatMap(document -> stockServer.sellStocks(companyId, amount)
                         .flatMap(sellResult -> users.findOneAndUpdate(eq("id", userId),
-                                inc("money", sellResult.getEarned())))
-                        .map(document1 -> "Successfully sold"))
-                .defaultIfEmpty("This user has no such amount of thees stocks");
+                                inc("money", sellResult.getEarned()))
+                                .map(doc -> sellResult)))
+                .defaultIfEmpty(new SellResult(0));
+    }
+
+    @Override
+    public Observable<String> deleteUserStocks(int userId, int companyId) {
+        return usersStocks.deleteMany(and(eq("userId", userId), eq("companyId", companyId)))
+                .map(res -> "Removed");
     }
 }

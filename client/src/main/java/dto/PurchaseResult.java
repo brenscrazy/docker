@@ -7,12 +7,15 @@ public class PurchaseResult {
 
     private final boolean hasBought;
     private final double spent;
+    private final String verdict;
 
     @JsonCreator
     public PurchaseResult(@JsonProperty("hasBought") boolean hasBought,
-                          @JsonProperty("spent") double spent) {
+                          @JsonProperty("spent") double spent,
+                          @JsonProperty("verdict") String verdict) {
         this.hasBought = hasBought;
         this.spent = spent;
+        this.verdict = verdict;
     }
 
     public boolean isHasBought() {
@@ -21,5 +24,9 @@ public class PurchaseResult {
 
     public double getSpent() {
         return spent;
+    }
+
+    public String getVerdict() {
+        return verdict;
     }
 }

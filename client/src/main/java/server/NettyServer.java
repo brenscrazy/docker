@@ -42,6 +42,9 @@ public class NettyServer {
             switch (requestName) {
                 case "addUser":
                     return dao.addUser(User.validateQueriesAndGet(queries));
+                case "removeUser":
+                    validateMapContainsFields(List.of("userId"), queries);
+                    return dao.removeUser(validateInt(queries.get("userId")));
                 case "addMoney":
                     validateMapContainsFields(List.of("userId", "money"), queries);
                     int id = validateInt(queries.get("userId"));
@@ -63,7 +66,14 @@ public class NettyServer {
                     int userId = validateInt(queries.get("userId"));
                     int companyId = validateInt(queries.get("companyId"));
                     int amount = validateInt(queries.get("amount"));
-                    return dao.buyStocks(userId, companyId, amount);
+                    return dao.buyStocks(userId, companyId, amount).flatMap(purchaseResult ->
+                    {
+                        try {
+                            return Observable.just(objectMapper.writeValueAsString(purchaseResult));
+                        } catch (JsonProcessingException e) {
+                            return Observable.error(e);
+                        }
+                    });
                 case "getWholeMoney":
                     validateMapContainsFields(List.of("userId"), queries);
                     userId = validateInt(queries.get("userId"));
@@ -73,7 +83,14 @@ public class NettyServer {
                     userId = validateInt(queries.get("userId"));
                     companyId = validateInt(queries.get("companyId"));
                     amount = validateInt(queries.get("amount"));
-                    return dao.sellStocks(userId, companyId, amount);
+                    return dao.sellStocks(userId, companyId, amount).flatMap(purchaseResult ->
+                    {
+                        try {
+                            return Observable.just(objectMapper.writeValueAsString(purchaseResult));
+                        } catch (JsonProcessingException e) {
+                            return Observable.error(e);
+                        }
+                    });
                 default:
                     return Observable.error(new IllegalArgumentException("Unknown command: " + requestName));
             }

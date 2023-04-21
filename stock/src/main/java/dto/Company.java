@@ -11,14 +11,18 @@ public class Company {
 
     private final int id;
     private final String name;
-    private final double stockPrice;
-    private final int amount;
-    private final static List<String> fields = List.of("id", "name", "stockPrice", "amount");
 
-    public Company(Document document) {
-        this(document.getInteger("id"), document.getString("name"), document.getDouble("stockPrice"),
-                document.getInteger("amount"));
+    public void setStockPrice(double stockPrice) {
+        this.stockPrice = stockPrice;
     }
+
+    public void incAmount(int amount) {
+        this.amount += amount;
+    }
+
+    private double stockPrice;
+    private int amount;
+    private final static List<String> fields = List.of("id", "name", "stockPrice", "amount");
 
     public Company(int id, String name, double stockPrice, int amount) {
         this.id = id;

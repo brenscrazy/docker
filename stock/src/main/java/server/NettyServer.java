@@ -6,7 +6,7 @@ import com.mongodb.rx.client.MongoClient;
 import com.mongodb.rx.client.MongoClients;
 import com.mongodb.rx.client.MongoDatabase;
 import dto.Company;
-import dao.MongoStockDao;
+import dao.InMemoryStockDao;
 import dao.StockDao;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import rx.Observable;
@@ -23,12 +23,7 @@ public class NettyServer {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public NettyServer() {
-
-        MongoClient client = MongoClients.create("mongodb://localhost:27017");
-        MongoDatabase database = client.getDatabase("market");
-        dao = new MongoStockDao(
-                database.getCollection("stock")
-        );
+        dao = new InMemoryStockDao();
     }
 
     public <T> Observable<String> handleRequest(HttpServerRequest<T> request) {
@@ -41,6 +36,9 @@ public class NettyServer {
             switch (requestName) {
                 case "addCompany":
                     return dao.addCompany(Company.validateQueriesAndGet(queries));
+                case "deleteCompany":
+                    validateMapContainsFields(List.of("id"), queries);
+                    return dao.deleteCompany(validateInt(queries.get("id")));
                 case "addStocks":
                     validateMapContainsFields(List.of("id", "amount"), queries);
                     int id = validateInt(queries.get("id"));
