@@ -1,7 +1,48 @@
-Build app and add docker image with app to local docker registry:
+# Биржевая система с двумя модулями и интеграционными тестами
+
+## Функционал модуля 'stock':
+
+`addCompany?id=int&name=string&stockPrice=double&amount=int`: добавление компании с заданым id, именем, ценой одной акции и количеством акций, доступным на бирже
+
+`deleteCompany?id=int`: удаление компании с заданым id
+
+`addStocks?id=int&amount=int`: добавление акций на рынок для компании с переданным id
+
+`getCompany?id=int`: получение информации о компании с заданным id
+
+`buyStocks?id=int&amount=int&moneyAvailable=double`: покупка акций компании с переданным id при достаточном количестве доступных средств
+
+`setStockPrice?id=int&stockPrice=double`: установка новой стоимости акций
+
+`sellStocks?id=int&amount=int`: продажа акций по нынешней цене
+
+
+Модуль запускается на localhost:8080 и хранит данные в оперативной памяти
+
+## Функционал модуля 'client':
+
+`addUser?id=int&money=double`: добавление в систему пользователя с заданным id и количеством средств
+
+`removeUser?userId=int`: удаление пользователя с заданым id
+
+`addMoney?userId=int&amount=double`: начислить пользователю с заданным id переданное количество средств
+
+`getStocks?userId=int`: получить информацию о приобретенных данным пользователем акциях
+
+`buyStocks?userId=int&companyId=int&amount=int`: приобрести переданное число акций заданной компании по нынешней цене
+
+`getWholeMoney?userId=int`: получить общее число средств пользователя по всем купленным акциям
+
+`sellStocks?userId=int&companyId=int&amount=int`: продать заданное число акций по нынешней цене
+
+Модуль запускается на localhost:8081 и хранит данные о пользователях и купленных акциях в MongoDB, запущенной на localhost:27017
+
+## Запуск интеграционных тестов
+
+Для запуска интеграционных тестов необходимо создать docker-образ stock-модуля следующей командой, запущенной из корня проекта:
 
 ```mvn -am -pl stock package```
 
-Run integration test with docker:
+После чего запустить интеграционные тесты командой:
 
 ```mvn -am -pl client test```
